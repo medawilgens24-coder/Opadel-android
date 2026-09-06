@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - principal
+      - main
 
 jobs:
   build:
@@ -30,6 +30,15 @@ jobs:
 
       - name: Créer le projet Android
         run: npx cap add android
+
+      - name: Préparer le logo OPADEL
+        run: |
+          mkdir -p assets
+          cp www/opadel-logo.png assets/logo.png
+
+      - name: Générer l'icône Android avec le logo OPADEL
+        run: |
+          npx -y @capacitor/assets@3.0.5 generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff'
 
       - name: Synchroniser Capacitor
         run: npx cap sync android

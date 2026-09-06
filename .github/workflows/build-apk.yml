@@ -11,43 +11,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Récupérer le projet
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Installer Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Installer Java 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: 17
 
-      - name: Installer les dépendances
+      - name: Install dependencies
         run: npm install
 
-      - name: Créer le projet Android
+      - name: Add Android platform
         run: npx cap add android
 
-      - name: Préparer le logo OPADEL
+      - name: Prepare app icon assets
         run: |
           mkdir -p assets
-          cp www/opadel-logo.png assets/logo.png
+          cp www/opadel-logo.png assets/icon-only.png
+          cp www/opadel-logo.png assets/icon-foreground.png
+          cp www/opadel-logo.png assets/icon-background.png
 
-      - name: Générer l'icône Android avec le logo OPADEL
+      - name: Generate Android icons
         run: |
-          npx -y @capacitor/assets@3.0.5 generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff'
+          npx -y @capacitor/assets@3.0.5 generate \
+            --android \
+            --iconBackgroundColor '#ffffff' \
+            --iconBackgroundColorDark '#ffffff'
 
-      - name: Synchroniser Capacitor
+      - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Construire APK
+      - name: Build Debug APK
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Publier APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: opadel-debug-apk
